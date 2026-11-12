@@ -20,6 +20,12 @@ data/raw/*
 data/processed/*
 !data/processed/.gitkeep
 
+# --- run logs: `nasa-space-ml serve > logs_server.txt` during development; the training
+# transcripts are useful locally and misleading in a repo, where a reader would take them
+# for the record of how the shipped artifacts were made (reports/*/metrics.json is that) ---
+logs_*.txt
+server.log
+
 # --- editors / os ---
 .vscode/
 .idea/

@@ -1,0 +1,22 @@
+# Line endings are pinned rather than left to each contributor's core.autocrlf, because
+# `ruff format --check` runs in CI on a fresh Linux checkout. A clone configured to write
+# CRLF would fail its own lint job for a reason that has nothing to do with the code.
+* text=auto eol=lf
+
+# A trained model and a figure are not text, and pretending otherwise turns every artifact
+# commit into a diff of hundreds of thousands of unreadable lines.
+*.joblib binary
+*.png binary
+*.gz binary
+
+# Explicit, so a new contributor's editor cannot guess differently about the files the
+# tests actually parse.
+*.py text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf

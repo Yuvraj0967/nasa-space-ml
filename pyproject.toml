@@ -37,6 +37,13 @@ addopts = "-q -m 'not network'"
 markers = [
     "network: hits a real NASA endpoint (deselected by default)",
 ]
+filterwarnings = [
+    "error",
+    # joblib 1.x sets `.shape` on arrays it loads, which NumPy 2.5 deprecated. It fires
+    # thousands of times per model load, from inside site-packages, and is not ours to fix -
+    # pinned so that warnings raised by *our* code still fail the build.
+    "ignore:Setting the shape on a NumPy array has been deprecated:DeprecationWarning",
+]
 
 [tool.ruff]
 line-length = 100

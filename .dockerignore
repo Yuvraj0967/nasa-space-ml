@@ -1,0 +1,43 @@
+# Everything here is either regenerable, host-specific, or large, and none of it belongs
+# in a container image whose whole point is to be buildable from a clean checkout.
+#
+# Docker's build context is the repository directory, and the daemon tars the whole thing
+# up before the first instruction runs - so a 6 MB data cache and a 200 MB virtualenv are
+# paid for on every build unless excluded here.
+
+# --- the virtualenv: the single biggest thing this file prevents ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# --- tool caches ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+logs_*.txt
+
+# --- data: fetched on purpose with `nasa-space-ml fetch`, never baked in ---
+data/
+
+# --- git ---
+.git/
+.gitignore
+.github/
+
+# --- editors / os ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- docs and tests: not needed at runtime, and excluding them keeps the context small.
+# The README is deliberately NOT excluded: the build reads it for the metadata field. ---
+docs/
+tests/
+scripts/

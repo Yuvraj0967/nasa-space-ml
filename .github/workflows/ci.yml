@@ -1,0 +1,118 @@
+name: ci
+
+# One workflow, three jobs. `lint` and `test` are the gate; `smoke` is the part that proves
+# the published repository is actually runnable rather than merely importable, because a
+# capstone that does not boot is worth nothing to a reviewer with ten minutes to spare.
+#
+# The suite never touches the network: every NASA call is exercised through
+# `httpx.MockTransport`, and the tests that would need real data skip cleanly when
+# `data/raw` is empty (which it is here - the cache is gitignored and regenerable with
+# `nasa-space-ml fetch`). The trained models under `models/` DO ship, so the API tests here
+# run against the same artifacts the README quotes numbers from.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install --upgrade pip
+      - run: pip install ".[dev]"
+      - run: ruff check src tests scripts
+      - run: ruff format --check src tests scripts
+
+  test:
+    name: test (python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.12 is what everything was developed and trained on; 3.11 is the declared floor,
+        # so it is a compatibility check rather than the reference environment.
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install --upgrade pip
+      - run: pip install ".[dev]"
+      - name: Confirm the shipped artifacts are the ones the code expects
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          sys.path.insert(0, "src")
+          from nasa_space_ml.features import asteroids, exoplanets
+          for name, live in (
+              ("exoplanet_disposition", list(exoplanets.FEATURE_COLUMNS)),
+              ("asteroid_pha", list(asteroids.FEATURE_COLUMNS)),
+          ):
+              meta = json.loads((pathlib.Path("models") / f"{name}.json").read_text())
+              if meta["feature_names"] != live:
+                  raise SystemExit(f"{name}: model expects {meta['feature_names']}, code builds {live}")
+              print(f"{name}: {len(live)} features match, trained {meta['trained_utc']}")
+          PY
+      - run: pytest -m "not network" --durations=10
+      - run: python -m nasa_space_ml --offline status
+
+  smoke:
+    name: boot the service and predict
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install ".[dev]"
+      - name: serve, wait for /health, score one real request
+        run: |
+          python -m nasa_space_ml serve --host 127.0.0.1 --port 8000 > server.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true; echo "--- server.log ---"; cat server.log' EXIT
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8000/api/v1/health > /dev/null; then break; fi
+            sleep 1
+            if [ "$i" = "40" ]; then echo "service never became healthy"; exit 1; fi
+          done
+          curl -fsS http://127.0.0.1:8000/api/v1/health | python -m json.tool | head -20
+          code=$(curl -fsS -o /tmp/predict.json -w '%{http_code}' \
+            -X POST http://127.0.0.1:8000/api/v1/exoplanets/predict \
+            -H 'content-type: application/json' \
+            -d '{"koi_period": 9.4888, "koi_depth": 6225.0, "koi_prad": 17.3, "koi_srad": 1.79, "koi_steff": 5848.0, "koi_model_snr": 51.2}')
+          echo "predict -> $code"; cat /tmp/predict.json
+          [ "$code" = "200" ]
+          curl -fsS -o /dev/null http://127.0.0.1:8000/
+          curl -fsS -o /dev/null http://127.0.0.1:8000/static/app.js
+          curl -fsS -o /dev/null http://127.0.0.1:8000/docs
+      - name: docker build
+        run: docker build -t nasa-space-ml:ci .
+      - name: container answers /meta
+        run: |
+          docker run -d -p 8000:8000 --name nsm-ci nasa-space-ml:ci
+          trap 'docker logs nsm-ci || true; docker rm -f nsm-ci || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8000/api/v1/meta > /dev/null 2>&1; then break; fi
+            sleep 1
+            if [ "$i" = "60" ]; then echo "container never answered"; exit 1; fi
+          done
+          curl -fsS http://127.0.0.1:8000/api/v1/health
