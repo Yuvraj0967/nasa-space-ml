@@ -11,7 +11,7 @@ content-type: application/problem+json
 x-request-id: 7f3c1e9b2a4d80c5
 
 {
-  "type": "https://github.com/Yuvraj0967/nasa-space-ml/docs/errors.md#not-trained",
+  "type": "https://github.com/Yuvraj0967/nasa-space-ml/blob/main/docs/errors.md#not-trained",
   "title": "ModelNotTrained",
   "status": 503,
   "detail": "no trained artifact for 'asteroid_pha': ... run `nasa-space-ml train --task asteroids`",
@@ -22,10 +22,11 @@ x-request-id: 7f3c1e9b2a4d80c5
 }
 ```
 
-The `type` value is a **document identifier, not a resolvable URL** — GitHub does not serve
-`/docs/errors.md` at that path, and RFC 9457 only requires that the string be a stable
-identifier you can look up. This page is that lookup. The anchor is the `code` field with
-`Error` removed and lower-cased, so `InvalidFeaturesError` → `#invalid-features`.
+The `type` value is RFC 9457's **document identifier**. It is not an XML namespace and
+nothing is required to fetch it — but it is written as a real, clickable URL to this page
+on `main`, because a reviewer staring at a 503 should be one click from the explanation
+rather than one from a 404. The anchor is the `code` field with `Error` removed and
+lower-cased, so `InvalidFeaturesError` → `#invalid-features`.
 
 `request_id` appears in the `X-Request-Id` response header as well as the body. Send your
 own (≤ 64 characters, any token you like) and the service echoes it back, which is what

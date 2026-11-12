@@ -35,12 +35,16 @@ STATUS_BY_CODE: dict[str, int] = {
     "InvalidFeaturesError": status.HTTP_422_UNPROCESSABLE_CONTENT,
 }
 
+# The `type` field of an RFC 9457 document must be a stable identifier; it does not have to
+# resolve. It resolves anyway, deliberately: the `/blob/main/` form is the URL a reviewer in
+# front of a 503 can actually click, and an error contract that sends people to a 404 is a
+# contract nobody can read under pressure.
 TYPE_URIS: dict[str, str] = {
-    "ConfigError": "https://github.com/Yuvraj0967/nasa-space-ml/docs/errors.md#config",
-    "DataError": "https://github.com/Yuvraj0967/nasa-space-ml/docs/errors.md#data",
-    "UpstreamNASAError": "https://github.com/Yuvraj0967/nasa-space-ml/docs/errors.md#upstream",
-    "ModelNotTrainedError": "https://github.com/Yuvraj0967/nasa-space-ml/docs/errors.md#not-trained",
-    "InvalidFeaturesError": "https://github.com/Yuvraj0967/nasa-space-ml/docs/errors.md#invalid-features",
+    "ConfigError": "https://github.com/Yuvraj0967/nasa-space-ml/blob/main/docs/errors.md#config",
+    "DataError": "https://github.com/Yuvraj0967/nasa-space-ml/blob/main/docs/errors.md#data",
+    "UpstreamNASAError": "https://github.com/Yuvraj0967/nasa-space-ml/blob/main/docs/errors.md#upstream",
+    "ModelNotTrainedError": "https://github.com/Yuvraj0967/nasa-space-ml/blob/main/docs/errors.md#not-trained",
+    "InvalidFeaturesError": "https://github.com/Yuvraj0967/nasa-space-ml/blob/main/docs/errors.md#invalid-features",
 }
 
 
@@ -55,7 +59,9 @@ def problem(
     details: dict[str, Any] | None = None,
 ) -> JSONResponse:
     body: dict[str, Any] = {
-        "type": TYPE_URIS.get(code, "https://github.com/Yuvraj0967/nasa-space-ml/docs/errors.md"),
+        "type": TYPE_URIS.get(
+            code, "https://github.com/Yuvraj0967/nasa-space-ml/blob/main/docs/errors.md"
+        ),
         "title": title,
         "status": status_code,
         "detail": detail,
