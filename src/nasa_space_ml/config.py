@@ -8,6 +8,7 @@ the model was trained on" bug.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -16,10 +17,52 @@ import yaml
 
 from .errors import ConfigError
 
-# Resolved from the installed package location, not from the current working directory, so
-# `nasa-space-ml train` and `uvicorn nasa_space_ml.api.app:app` read the same file whether
-# they are launched from the repo root, from /, or from inside a Docker image.
+#: The environment variable a container uses to point at its own copy of the settings.
+#: `api/app.py` imports this rather than repeating the literal, because two spellings of a
+#: variable name is how a container ends up silently reading the wrong thresholds.
+CONFIG_ENV = "NSM_CONFIG"
+
+#: Where the settings file lives in a source checkout, computed from the installed package
+#: location. Kept as a constant because tests and error messages want a stable name to
+#: point at; it is the *last* candidate, not the answer.
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "configs" / "settings.yaml"
+
+
+def config_candidates(start: Path | None = None) -> list[Path]:
+    """Every place the settings file could be, best match first.
+
+    The order is the one that survives the three ways this project is actually run:
+
+    1. `$NSM_CONFIG` - a container copies `configs/` somewhere the repository layout does
+       not imply, and an explicitly set path that gets ignored is a silent misconfiguration.
+    2. The nearest `configs/settings.yaml` at or above the current working directory -
+       because `pip install .` puts the package in site-packages, where `parents[2]` is a
+       directory that has never seen this file. The first CI run of this repository found
+       that out: an installed-but-not-editable `nasa-space-ml status` looked for its config
+       two levels above site-packages and failed.
+    3. The package-relative checkout default, which is correct for the editable install
+       everyone develops against.
+
+    Split from the lookup so the ordering is assertable without moving directories.
+    """
+    base = (start or Path.cwd()).resolve()
+    candidates: list[Path] = []
+    from_env = os.environ.get(CONFIG_ENV)
+    if from_env:
+        candidates.append(Path(from_env))
+    candidates.extend(
+        directory / "configs" / "settings.yaml" for directory in (base, *base.parents)
+    )
+    candidates.append(DEFAULT_CONFIG_PATH)
+    return candidates
+
+
+def resolve_default_config_path(start: Path | None = None) -> Path:
+    """The first candidate that exists, or the package default so errors name something real."""
+    for candidate in config_candidates(start):
+        if candidate.is_file():
+            return candidate
+    return DEFAULT_CONFIG_PATH
 
 
 def _need(mapping: dict[str, Any], key: str, where: str) -> Any:
@@ -107,10 +150,12 @@ class Config:
     def load(cls, path: str | Path | None = None) -> Config:
         """Read settings.yaml and return a validated Config.
 
-        Relative paths inside the file resolve against the repository root (the parent of
-        the configs/ directory), so the CLI works from any current working directory.
+        With no argument the file is found by `resolve_default_config_path`, and relative
+        paths inside the file then resolve against the repository root (the parent of the
+        configs/ directory that was actually read) - so the CLI works from any current
+        working directory, and an installed wheel still finds the checkout it was run from.
         """
-        config_path = Path(path) if path else DEFAULT_CONFIG_PATH
+        config_path = Path(path) if path else resolve_default_config_path()
         if not config_path.exists():
             raise ConfigError(f"config file not found: {config_path}")
 

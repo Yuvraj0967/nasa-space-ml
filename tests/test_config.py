@@ -12,7 +12,12 @@ from pathlib import Path
 
 import pytest
 
-from nasa_space_ml.config import Config
+from nasa_space_ml.config import (
+    DEFAULT_CONFIG_PATH,
+    Config,
+    config_candidates,
+    resolve_default_config_path,
+)
 from nasa_space_ml.errors import ConfigError
 
 
@@ -72,3 +77,52 @@ def test_group_columns_are_the_star_and_the_object_not_the_row(config: Config) -
 
 def test_seed_is_stable_across_loads(config: Config) -> None:
     assert Config.load().seed == config.seed == 20261111
+
+
+class TestConfigFileDiscovery:
+    """Where `settings.yaml` comes from when nobody says.
+
+    The first CI run of this repository installed the package with `pip install .` rather
+    than `pip install -e .`, which put it in site-packages - where the package-relative
+    default is not a real file - and then `nasa-space-ml --offline status` failed for a
+    reason that had nothing to do with the code. Searching upward from the working directory
+    fixes that, because the checkout you are standing in is the repository whose thresholds
+    you meant.
+    """
+
+    def test_environment_variable_is_the_first_candidate(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("NSM_CONFIG", str(tmp_path / "container.yaml"))
+        assert config_candidates(tmp_path)[0] == tmp_path / "container.yaml"
+
+    def test_a_settings_file_any_parent_of_the_cwd_wins(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.delenv("NSM_CONFIG", raising=False)
+        clone = tmp_path / "clone"
+        (clone / "configs").mkdir(parents=True)
+        deep = clone / "src" / "nasa_space_ml"
+        deep.mkdir(parents=True)
+        found = clone / "configs" / "settings.yaml"
+        found.write_text("random_seed: 7\n", encoding="utf-8")
+
+        assert resolve_default_config_path(deep) == found
+
+    def test_the_repository_itself_is_found_from_a_subdirectory(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """`Config.load()` from anywhere inside this checkout must read this checkout."""
+        monkeypatch.delenv("NSM_CONFIG", raising=False)
+        from_repo_root = Config.load()
+        from_a_subdirectory = Config.load(resolve_default_config_path(Path("src").resolve()))
+        assert from_a_subdirectory.seed == from_repo_root.seed == 20261111
+
+    def test_nothing_on_disk_falls_back_to_the_named_default(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The fallback is not a guess that succeeds; it is the path the error message names."""
+        monkeypatch.delenv("NSM_CONFIG", raising=False)
+        assert resolve_default_config_path(tmp_path) == DEFAULT_CONFIG_PATH
+        with pytest.raises(ConfigError, match="config file not found"):
+            Config.load(tmp_path / "absent.yaml")

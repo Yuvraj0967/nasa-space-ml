@@ -23,25 +23,27 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .. import __version__
-from ..config import Config
+from ..config import CONFIG_ENV, Config
 from ..data.cache import Cache
 from .deps import initialise
 from .middleware import RequestIdMiddleware
 from .problem import register_handlers
 from .routers import asteroids, exoplanets, meta
 
-CONFIG_ENV = "NSM_CONFIG"
 WEB_ENV = "NSM_WEB_DIR"
 
 
 def resolve_config_path(config_path: str | Path | None = None) -> Path | None:
-    """Explicit argument, then `$NSM_CONFIG`, then the package-relative default.
+    """Explicit argument, then `$NSM_CONFIG`, then None for "whatever `Config.load` finds".
 
-    The environment variable exists because a Docker image installs this package into
-    site-packages, where `parents[2]/configs/settings.yaml` is not a real directory. Without
-    it the honest alternatives were an editable install in a production image or a config
-    path that silently resolved to nothing, and a service that cannot find its thresholds is
-    worse than one that refuses to start.
+    Returning None rather than a guessed path is deliberate: the search order then lives in
+    exactly one place (`config.config_candidates`), and this function keeps only the job the
+    container needs - overriding the repository layout with a path the image controls. The
+    variable exists because a Docker image installs this package into site-packages, where
+    `parents[2]/configs/settings.yaml` is not a real directory. Without an override the
+    honest alternatives were an editable install in a production image or a config path that
+    silently resolved to nothing, and a service that cannot find its thresholds is worse than
+    one that refuses to start.
     """
     if config_path is not None:
         return Path(config_path)

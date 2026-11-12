@@ -43,6 +43,15 @@ filterwarnings = [
     # thousands of times per model load, from inside site-packages, and is not ours to fix -
     # pinned so that warnings raised by *our* code still fail the build.
     "ignore:Setting the shape on a NumPy array has been deprecated:DeprecationWarning",
+    # Starlette's TestClient would rather import a package called `httpx2` and falls back to
+    # `httpx`, warning on import when it does. The fallback is supported, `httpx` is already
+    # this project's HTTP client, and installing a second client just to silence a notice
+    # about a migration Starlette owns would mean shipping a dependency the application
+    # never uses. Scoped to this one warning category and message, so everything else -
+    # including anything our own code raises - still errors. This filter is load-bearing:
+    # without it `pip install ".[dev]"` in a clean environment fails at collection, as the
+    # first CI run of this repository discovered.
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated:starlette.exceptions.StarletteDeprecationWarning",
 ]
 
 [tool.ruff]
