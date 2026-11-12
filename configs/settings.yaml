@@ -1,0 +1,61 @@
+# Central configuration. Training and serving both read this file, which is what keeps
+# the feature list identical on both sides (avoiding train/serve skew).
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  model_dir: models
+  report_dir: reports
+
+random_seed: 20261111
+
+http:
+  timeout_seconds: 60
+  max_attempts: 4
+  backoff_base_seconds: 0.5
+  backoff_cap_seconds: 12
+  user_agent: nasa-space-ml/0.1 (capstone project; contact via GitHub)
+
+exoplanets:
+  source: https://exoplanetarchive.ipac.caltech.edu/TAP/sync
+  table: Q1_Q17_DR25_KOI
+  raw_file: koi_q1_q17_dr25.csv
+  processed_file: exoplanet_features.csv
+  label_column: koi_disposition
+  # Grouping is by HOST STAR, not by candidate id. Kepler reports several planets around
+  # the same star; if a star lands in both train and test its stellar parameters leak the
+  # answer and the score becomes fiction. `kepid` is the archive's 8-digit stellar EPIC id.
+  # (The KOI table has no `hostname` column - verified against TAP_SCHEMA.columns, which
+  # rejects it with ORA-00904 - so `kepid` is the star-level key.)
+  group_column: kepid
+  labels:
+    - CONFIRMED
+    - CANDIDATE
+    - FALSE POSITIVE
+
+asteroids:
+  source: https://ssd-api.jpl.nasa.gov/cad.api.json
+  expected_api_version: "1.5"
+  date_min: 2020-01-01
+  date_max: 2031-01-01
+  dist_max_au: 0.2
+  page_limit: 5000
+  max_pages: 20
+  raw_file: cad_approaches.csv
+  pha_file: cad_pha_des.txt
+  processed_file: asteroid_features.csv
+  group_column: des
+  labels:
+    - NOT_PHA
+    - PHA
+  # NASA's published definition, implemented literally as the baseline model.
+  pha_distance_au: 0.05
+  pha_absolute_magnitude: 22.0
+  # Assumed geometric albedo for the magnitude -> diameter conversion, standard for
+  # unknown-composition NEOs (Bover); the assumption is documented, not hidden.
+  default_geometric_albedo: 0.14
+
+split:
+  test_size: 0.2
+  val_size: 0.15
+  n_folds: 5
