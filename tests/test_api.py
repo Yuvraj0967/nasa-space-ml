@@ -28,14 +28,14 @@ from fastapi.testclient import TestClient
 from nasa_space_ml import __version__
 from nasa_space_ml.api.app import create_app, resolve_config_path, web_dir
 from nasa_space_ml.api.deps import AppState
-from nasa_space_ml.config import DEFAULT_CONFIG_PATH, Config
+from nasa_space_ml.config import Config, resolve_default_config_path
 from nasa_space_ml.data.cache import Cache
 from nasa_space_ml.errors import ConfigError
 from nasa_space_ml.features import asteroids as asteroid_features
 from nasa_space_ml.features import exoplanets as exoplanet_features
 
 API = "/api/v1"
-REAL_CONFIG = Config.load(DEFAULT_CONFIG_PATH)
+REAL_CONFIG = Config.load(resolve_default_config_path())
 
 
 def _models_trained() -> bool:
@@ -743,16 +743,28 @@ class TestEnvironmentOverrides:
         with TestClient(create_app()) as test_client:
             assert test_client.get("/").status_code == 200
 
-    def test_the_package_relative_layout_beats_the_working_directory(
+    def test_the_package_relative_candidate_beats_the_working_directory(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        other = tmp_path / "cwd-web"
-        other.mkdir()
-        (other / "index.html").write_text("<!doctype html><title>cwd</title>", encoding="utf-8")
+        """The property is the *order* of the candidates, not this machine's layout.
+
+        Comparing `web_dir()` against the `web/` next to this checkout only holds for an
+        editable install. A wheel in site-packages resolves the same function somewhere else
+        entirely, which is what the repository's second CI run found when a test that passed
+        at home failed on a runner. Two fabricated candidate directories make the precedence
+        assertable in any install layout.
+        """
+        from nasa_space_ml.api import app as app_module
+
+        package_web = tmp_path / "install" / "web"
+        checkout_web = tmp_path / "checkout" / "web"
+        for directory in (package_web, checkout_web):
+            directory.mkdir(parents=True)
+            (directory / "index.html").write_text("<!doctype html>", encoding="utf-8")
         monkeypatch.delenv("NSM_WEB_DIR", raising=False)
-        with monkeypatch.context() as inner:
-            inner.chdir(other)
-            assert web_dir() == Path(__file__).resolve().parents[1] / "web"
+        monkeypatch.setattr(app_module, "web_candidates", lambda: [package_web, checkout_web])
+
+        assert web_dir() == package_web
 
 
 class TestAppFactory:

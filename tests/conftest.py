@@ -18,15 +18,21 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from nasa_space_ml.config import DEFAULT_CONFIG_PATH, Config
+from nasa_space_ml.config import Config, resolve_default_config_path
 from nasa_space_ml.data.cache import Cache
 from nasa_space_ml.features import exoplanets as exoplanet_features
 
 
 @pytest.fixture()
 def config() -> Config:
-    """The real shipped config, so a test that depends on a value catches a bad value."""
-    return Config.load(DEFAULT_CONFIG_PATH)
+    """The real shipped config, so a test that depends on a value catches a bad value.
+
+    Resolved through the same search the CLI uses, not through `DEFAULT_CONFIG_PATH`,
+    because a test that hardcodes a different path rule passes locally and fails wherever
+    the package was installed non-editably. That is not hypothetical: the repository's
+    second CI run died exactly there.
+    """
+    return Config.load(resolve_default_config_path())
 
 
 @pytest.fixture()

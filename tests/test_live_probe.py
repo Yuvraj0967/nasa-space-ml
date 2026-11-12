@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import pytest
 
-from nasa_space_ml.config import DEFAULT_CONFIG_PATH, Config
+from nasa_space_ml.config import Config, resolve_default_config_path
 from nasa_space_ml.data import asteroids, exoplanets
 from nasa_space_ml.data.cache import Cache
 
@@ -26,7 +26,7 @@ pytestmark = pytest.mark.network
 
 @pytest.fixture(scope="module")
 def live_config() -> Config:
-    return Config.load(DEFAULT_CONFIG_PATH)
+    return Config.load(resolve_default_config_path())
 
 
 def test_tap_endpoint_still_answers_with_the_columns_we_ask_for(

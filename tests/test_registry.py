@@ -371,9 +371,17 @@ class TestRealArtifacts:
         assert loaded.metadata["labels"] == list(config.asteroids.labels)
         assert loaded.metadata["n_features"] == len(asteroid_features.FEATURE_COLUMNS)
 
-    def test_committed_models_record_the_fingerprint_of_the_data_they_ship_with(self) -> None:
-        """`reports/*/metrics.json` and `models/*.json` must describe the same run."""
-        model_dir = Path(registry.__file__).resolve().parents[3] / "models"
+    def test_committed_models_record_the_fingerprint_of_the_data_they_ship_with(
+        self, config: Any
+    ) -> None:
+        """`reports/*/metrics.json` and `models/*.json` must describe the same run.
+
+        The directory comes from the loaded config rather than from a `parents[3]` walk off
+        `registry.__file__`, because that walk only lands on the repository when the package
+        is installed editable - and a test that quietly skips on a wheel install is a test
+        that stops testing without telling anyone.
+        """
+        model_dir = config.paths.model_dir
         for name in ("exoplanet_disposition", "asteroid_pha"):
             sidecar = model_dir / f"{name}{META_SUFFIX}"
             if not sidecar.exists():
