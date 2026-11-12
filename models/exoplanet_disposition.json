@@ -1,0 +1,403 @@
+{
+  "algorithm": "learned:hist_gradient_boosting",
+  "baseline": {
+    "metrics": {
+      "accuracy": 0.5022250476795931,
+      "brier": 0.3318499682136046,
+      "confusion": {
+        "labels": [
+          "CANDIDATE",
+          "CONFIRMED",
+          "FALSE POSITIVE"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            269
+          ],
+          [
+            0,
+            0,
+            514
+          ],
+          [
+            0,
+            0,
+            790
+          ]
+        ]
+      },
+      "log_loss": 17.941627847221064,
+      "macro_f1": 0.22288051911412046,
+      "per_class": {
+        "CANDIDATE": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 269
+        },
+        "CONFIRMED": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 514
+        },
+        "FALSE POSITIVE": {
+          "f1": 0.6686415573423614,
+          "precision": 0.5022250476795931,
+          "recall": 1.0,
+          "support": 790
+        }
+      },
+      "roc_auc_macro": 0.5,
+      "roc_auc_ovr": 0.5,
+      "weighted_f1": 0.33580853801682486
+    },
+    "name": "dummy_majority"
+  },
+  "cv": [
+    {
+      "candidate": "dummy_majority",
+      "cv_mean": 0.2192,
+      "cv_std": 0.0001,
+      "fit_seconds": 0.01,
+      "fold_metric_means": {
+        "brier": 0.3401,
+        "macro_f1": 0.2192
+      },
+      "fold_scores": [
+        0.2192,
+        0.2192,
+        0.2192,
+        0.2192,
+        0.2191
+      ],
+      "kind": "rule"
+    },
+    {
+      "candidate": "hist_gradient_boosting",
+      "cv_mean": 0.7659,
+      "cv_std": 0.0145,
+      "fit_seconds": 14.15,
+      "fold_metric_means": {
+        "brier": 0.0903,
+        "macro_f1": 0.7659
+      },
+      "fold_scores": [
+        0.756,
+        0.7629,
+        0.7711,
+        0.7881,
+        0.7515
+      ],
+      "kind": "learned"
+    },
+    {
+      "candidate": "logistic_regression",
+      "cv_mean": 0.6632,
+      "cv_std": 0.0107,
+      "fit_seconds": 0.72,
+      "fold_metric_means": {
+        "brier": 0.1342,
+        "macro_f1": 0.6632
+      },
+      "fold_scores": [
+        0.6564,
+        0.6535,
+        0.6576,
+        0.6785,
+        0.6703
+      ],
+      "kind": "learned"
+    },
+    {
+      "candidate": "random_forest_200",
+      "cv_mean": 0.7602,
+      "cv_std": 0.0138,
+      "fit_seconds": 3.7,
+      "fold_metric_means": {
+        "brier": 0.0882,
+        "macro_f1": 0.7602
+      },
+      "fold_scores": [
+        0.745,
+        0.7543,
+        0.7563,
+        0.7817,
+        0.7638
+      ],
+      "kind": "learned"
+    }
+  ],
+  "dataset_fingerprint": "f732fe257e31929eae5bc08409ce59168df76df429911c30a0b949bca38eedbc",
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "scikit_learn": "1.9.0"
+  },
+  "feature_hash": "41939f75dc829393",
+  "feature_names": [
+    "log_period",
+    "log_duration",
+    "log_depth",
+    "log_prad",
+    "prad_inconsistency",
+    "duration_over_period",
+    "impact",
+    "eccentricity",
+    "inclination",
+    "log_sma",
+    "equilibrium_temp",
+    "stellar_teff",
+    "log_stellar_radius",
+    "stellar_mass",
+    "stellar_logg",
+    "stellar_density",
+    "n_transits",
+    "model_snr",
+    "max_single_event_snr",
+    "kepler_mag",
+    "koi_count"
+  ],
+  "feature_ranges": {
+    "duration_over_period": [
+      0.0062900999498267,
+      12.000248231035462
+    ],
+    "eccentricity": [
+      0.0,
+      0.0
+    ],
+    "equilibrium_temp": [
+      129.0,
+      14667.0
+    ],
+    "impact": [
+      0.0,
+      25.224
+    ],
+    "inclination": [
+      5.58,
+      90.0
+    ],
+    "kepler_mag": [
+      6.966,
+      20.003
+    ],
+    "koi_count": [
+      1.0,
+      7.0
+    ],
+    "log_depth": [
+      -0.09691001300805639,
+      5.964575922807128
+    ],
+    "log_duration": [
+      -1.2839966563652008,
+      2.14157518330082
+    ],
+    "log_period": [
+      -0.5853279915531772,
+      3.0298837904858686
+    ],
+    "log_prad": [
+      -0.744727494896694,
+      4.415689343332093
+    ],
+    "log_sma": [
+      -2.2291479883578558,
+      0.33294316012569236
+    ],
+    "log_stellar_radius": [
+      -0.9625735020593764,
+      2.3615540834720052
+    ],
+    "max_single_event_snr": [
+      2.4174368,
+      22982.162
+    ],
+    "model_snr": [
+      0.0,
+      8755.2
+    ],
+    "n_transits": [
+      0.0,
+      2664.0
+    ],
+    "prad_inconsistency": [
+      3.3996435515715184e-05,
+      25655.08015161798
+    ],
+    "stellar_density": [
+      0.0,
+      77.9905314861675
+    ],
+    "stellar_logg": [
+      0.25,
+      5.364
+    ],
+    "stellar_mass": [
+      0.0,
+      3.735
+    ],
+    "stellar_teff": [
+      2661.0,
+      15896.0
+    ]
+  },
+  "folds": {
+    "test": {
+      "classes": {
+        "CANDIDATE": 269,
+        "CONFIRMED": 514,
+        "FALSE POSITIVE": 790
+      },
+      "groups": 1385,
+      "rows": 1573
+    },
+    "train": {
+      "classes": {
+        "CANDIDATE": 885,
+        "CONFIRMED": 1809,
+        "FALSE POSITIVE": 2579
+      },
+      "groups": 4500,
+      "rows": 5273
+    },
+    "val": {
+      "classes": {
+        "CANDIDATE": 204,
+        "CONFIRMED": 408,
+        "FALSE POSITIVE": 596
+      },
+      "groups": 1038,
+      "rows": 1208
+    }
+  },
+  "groups": 6923,
+  "holdout": {
+    "cv_seconds": 21.3,
+    "test": 1573,
+    "train": 5273,
+    "val": 1208
+  },
+  "labels": [
+    "CONFIRMED",
+    "CANDIDATE",
+    "FALSE POSITIVE"
+  ],
+  "metrics": {
+    "accuracy": 0.8073744437380801,
+    "brier": 0.09398565467627731,
+    "confusion": {
+      "labels": [
+        "CANDIDATE",
+        "CONFIRMED",
+        "FALSE POSITIVE"
+      ],
+      "matrix": [
+        [
+          177,
+          39,
+          53
+        ],
+        [
+          59,
+          433,
+          22
+        ],
+        [
+          82,
+          48,
+          660
+        ]
+      ]
+    },
+    "log_loss": 0.4965990814932442,
+    "macro_f1": 0.7687214626548372,
+    "per_class": {
+      "CANDIDATE": {
+        "f1": 0.6030664395229983,
+        "precision": 0.5566037735849056,
+        "recall": 0.6579925650557621,
+        "support": 269
+      },
+      "CONFIRMED": {
+        "f1": 0.8375241779497099,
+        "precision": 0.8326923076923077,
+        "recall": 0.8424124513618677,
+        "support": 514
+      },
+      "FALSE POSITIVE": {
+        "f1": 0.8655737704918033,
+        "precision": 0.8979591836734694,
+        "recall": 0.8354430379746836,
+        "support": 790
+      }
+    },
+    "roc_auc_macro": 0.9226364637739911,
+    "roc_auc_ovr": 0.9226364637739911,
+    "weighted_f1": 0.8115165787580177
+  },
+  "n_features": 21,
+  "name": "exoplanet_disposition",
+  "rows": 8054,
+  "schema_version": 1,
+  "settings_path": "C:\\Users\\Yuvraj Pateria\\Documents\\Qoder\\2026-11-11\\adb27b28\\nasa-space-ml\\configs\\settings.yaml",
+  "task": "exoplanets",
+  "train_metrics": {
+    "accuracy": 0.9094275574756981,
+    "brier": 0.04977372115001467,
+    "confusion": {
+      "labels": [
+        "CANDIDATE",
+        "CONFIRMED",
+        "FALSE POSITIVE"
+      ],
+      "matrix": [
+        [
+          967,
+          62,
+          60
+        ],
+        [
+          117,
+          2067,
+          33
+        ],
+        [
+          185,
+          130,
+          2860
+        ]
+      ]
+    },
+    "log_loss": 0.2897860461087448,
+    "macro_f1": 0.8923998192151293,
+    "per_class": {
+      "CANDIDATE": {
+        "f1": 0.820186598812553,
+        "precision": 0.7620173364854216,
+        "recall": 0.8879706152433425,
+        "support": 1089
+      },
+      "CONFIRMED": {
+        "f1": 0.9235924932975871,
+        "precision": 0.9150066401062417,
+        "recall": 0.93234100135318,
+        "support": 2217
+      },
+      "FALSE POSITIVE": {
+        "f1": 0.933420365535248,
+        "precision": 0.9685066034541144,
+        "recall": 0.9007874015748032,
+        "support": 3175
+      }
+    },
+    "roc_auc_macro": 0.9809520526605141,
+    "roc_auc_ovr": 0.9809520526605141,
+    "weighted_f1": 0.911031850690022
+  },
+  "trained_utc": "2026-11-12T13:44:29+00:00"
+}

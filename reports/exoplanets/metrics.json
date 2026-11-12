@@ -1,0 +1,444 @@
+{
+  "algorithm": "learned:hist_gradient_boosting",
+  "baseline_name": "dummy_majority",
+  "baseline_test_metrics": {
+    "accuracy": 0.5022250476795931,
+    "brier": 0.3318499682136046,
+    "confusion": {
+      "labels": [
+        "CANDIDATE",
+        "CONFIRMED",
+        "FALSE POSITIVE"
+      ],
+      "matrix": [
+        [
+          0,
+          0,
+          269
+        ],
+        [
+          0,
+          0,
+          514
+        ],
+        [
+          0,
+          0,
+          790
+        ]
+      ]
+    },
+    "log_loss": 17.941627847221064,
+    "macro_f1": 0.22288051911412046,
+    "per_class": {
+      "CANDIDATE": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 269
+      },
+      "CONFIRMED": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 514
+      },
+      "FALSE POSITIVE": {
+        "f1": 0.6686415573423614,
+        "precision": 0.5022250476795931,
+        "recall": 1.0,
+        "support": 790
+      }
+    },
+    "roc_auc_macro": 0.5,
+    "roc_auc_ovr": 0.5,
+    "weighted_f1": 0.33580853801682486
+  },
+  "candidates": [
+    {
+      "candidate": "dummy_majority",
+      "cv_mean": 0.2192,
+      "cv_std": 0.0001,
+      "fit_seconds": 0.01,
+      "fold_metric_means": {
+        "brier": 0.3401,
+        "macro_f1": 0.2192
+      },
+      "fold_scores": [
+        0.2192,
+        0.2192,
+        0.2192,
+        0.2192,
+        0.2191
+      ],
+      "kind": "rule"
+    },
+    {
+      "candidate": "hist_gradient_boosting",
+      "cv_mean": 0.7659,
+      "cv_std": 0.0145,
+      "fit_seconds": 14.15,
+      "fold_metric_means": {
+        "brier": 0.0903,
+        "macro_f1": 0.7659
+      },
+      "fold_scores": [
+        0.756,
+        0.7629,
+        0.7711,
+        0.7881,
+        0.7515
+      ],
+      "kind": "learned"
+    },
+    {
+      "candidate": "logistic_regression",
+      "cv_mean": 0.6632,
+      "cv_std": 0.0107,
+      "fit_seconds": 0.72,
+      "fold_metric_means": {
+        "brier": 0.1342,
+        "macro_f1": 0.6632
+      },
+      "fold_scores": [
+        0.6564,
+        0.6535,
+        0.6576,
+        0.6785,
+        0.6703
+      ],
+      "kind": "learned"
+    },
+    {
+      "candidate": "random_forest_200",
+      "cv_mean": 0.7602,
+      "cv_std": 0.0138,
+      "fit_seconds": 3.7,
+      "fold_metric_means": {
+        "brier": 0.0882,
+        "macro_f1": 0.7602
+      },
+      "fold_scores": [
+        0.745,
+        0.7543,
+        0.7563,
+        0.7817,
+        0.7638
+      ],
+      "kind": "learned"
+    }
+  ],
+  "dataset_fingerprint": "f732fe257e31929eae5bc08409ce59168df76df429911c30a0b949bca38eedbc",
+  "feature_names": [
+    "log_period",
+    "log_duration",
+    "log_depth",
+    "log_prad",
+    "prad_inconsistency",
+    "duration_over_period",
+    "impact",
+    "eccentricity",
+    "inclination",
+    "log_sma",
+    "equilibrium_temp",
+    "stellar_teff",
+    "log_stellar_radius",
+    "stellar_mass",
+    "stellar_logg",
+    "stellar_density",
+    "n_transits",
+    "model_snr",
+    "max_single_event_snr",
+    "kepler_mag",
+    "koi_count"
+  ],
+  "figures": {
+    "candidate_comparison": "candidate_comparison.png",
+    "confusion_matrix": "confusion_matrix.png",
+    "permutation_importance": "permutation_importance.png"
+  },
+  "folds": {
+    "test": {
+      "classes": {
+        "CANDIDATE": 269,
+        "CONFIRMED": 514,
+        "FALSE POSITIVE": 790
+      },
+      "groups": 1385,
+      "rows": 1573
+    },
+    "train": {
+      "classes": {
+        "CANDIDATE": 885,
+        "CONFIRMED": 1809,
+        "FALSE POSITIVE": 2579
+      },
+      "groups": 4500,
+      "rows": 5273
+    },
+    "val": {
+      "classes": {
+        "CANDIDATE": 204,
+        "CONFIRMED": 408,
+        "FALSE POSITIVE": 596
+      },
+      "groups": 1038,
+      "rows": 1208
+    }
+  },
+  "groups": 6923,
+  "holdout": {
+    "cv_seconds": 21.3,
+    "test": 1573,
+    "train": 5273,
+    "val": 1208
+  },
+  "importance": {
+    "features": [
+      {
+        "feature": "model_snr",
+        "mean_decrease": 0.1426051119751422,
+        "null_importance": false,
+        "std_decrease": 0.00930612677995276
+      },
+      {
+        "feature": "duration_over_period",
+        "mean_decrease": 0.0886936938992367,
+        "null_importance": false,
+        "std_decrease": 0.0049871168708129415
+      },
+      {
+        "feature": "log_prad",
+        "mean_decrease": 0.0765759475036737,
+        "null_importance": false,
+        "std_decrease": 0.007520706856795334
+      },
+      {
+        "feature": "prad_inconsistency",
+        "mean_decrease": 0.03382766978008292,
+        "null_importance": false,
+        "std_decrease": 0.0048284104895927205
+      },
+      {
+        "feature": "max_single_event_snr",
+        "mean_decrease": 0.028962939031171586,
+        "null_importance": false,
+        "std_decrease": 0.004302883041133388
+      },
+      {
+        "feature": "log_duration",
+        "mean_decrease": 0.027563373576985684,
+        "null_importance": false,
+        "std_decrease": 0.005252944569520968
+      },
+      {
+        "feature": "equilibrium_temp",
+        "mean_decrease": 0.01787686694216209,
+        "null_importance": false,
+        "std_decrease": 0.003999552740992534
+      },
+      {
+        "feature": "koi_count",
+        "mean_decrease": 0.017503914657478067,
+        "null_importance": false,
+        "std_decrease": 0.0027722454745498057
+      },
+      {
+        "feature": "stellar_teff",
+        "mean_decrease": 0.014090865565153154,
+        "null_importance": false,
+        "std_decrease": 0.0029527558573188657
+      },
+      {
+        "feature": "impact",
+        "mean_decrease": 0.012260800246893272,
+        "null_importance": false,
+        "std_decrease": 0.003991123806312069
+      },
+      {
+        "feature": "n_transits",
+        "mean_decrease": 0.010046497312470065,
+        "null_importance": false,
+        "std_decrease": 0.0029609578440897067
+      },
+      {
+        "feature": "log_depth",
+        "mean_decrease": 0.008658481727581435,
+        "null_importance": false,
+        "std_decrease": 0.003859148260888228
+      },
+      {
+        "feature": "stellar_mass",
+        "mean_decrease": 0.007729110379379581,
+        "null_importance": false,
+        "std_decrease": 0.0026275260579675087
+      },
+      {
+        "feature": "stellar_density",
+        "mean_decrease": 0.007627799036738506,
+        "null_importance": false,
+        "std_decrease": 0.0038144319793598307
+      },
+      {
+        "feature": "log_sma",
+        "mean_decrease": 0.0033098388826338088,
+        "null_importance": false,
+        "std_decrease": 0.0014253234202110635
+      },
+      {
+        "feature": "kepler_mag",
+        "mean_decrease": 0.0027836395666485103,
+        "null_importance": false,
+        "std_decrease": 0.004603164978759687
+      },
+      {
+        "feature": "log_period",
+        "mean_decrease": 0.002620272788806957,
+        "null_importance": false,
+        "std_decrease": 0.0022600096934396467
+      },
+      {
+        "feature": "inclination",
+        "mean_decrease": 0.0002738734991175745,
+        "null_importance": false,
+        "std_decrease": 0.0031868772165368096
+      },
+      {
+        "feature": "eccentricity",
+        "mean_decrease": 0.0,
+        "null_importance": false,
+        "std_decrease": 0.0
+      },
+      {
+        "feature": "log_stellar_radius",
+        "mean_decrease": -0.001727612714502752,
+        "null_importance": false,
+        "std_decrease": 0.00257625983550092
+      },
+      {
+        "feature": "stellar_logg",
+        "mean_decrease": -0.002601759044343205,
+        "null_importance": false,
+        "std_decrease": 0.0033561569394871555
+      }
+    ],
+    "n_repeats": 8,
+    "scorer": "f1_macro"
+  },
+  "labels": [
+    "CONFIRMED",
+    "CANDIDATE",
+    "FALSE POSITIVE"
+  ],
+  "rows": 8054,
+  "selection_metric": "macro_f1",
+  "settings_path": "C:\\Users\\Yuvraj Pateria\\Documents\\Qoder\\2026-11-11\\adb27b28\\nasa-space-ml\\configs\\settings.yaml",
+  "task": "exoplanets",
+  "test_metrics": {
+    "accuracy": 0.8073744437380801,
+    "brier": 0.09398565467627731,
+    "confusion": {
+      "labels": [
+        "CANDIDATE",
+        "CONFIRMED",
+        "FALSE POSITIVE"
+      ],
+      "matrix": [
+        [
+          177,
+          39,
+          53
+        ],
+        [
+          59,
+          433,
+          22
+        ],
+        [
+          82,
+          48,
+          660
+        ]
+      ]
+    },
+    "log_loss": 0.4965990814932442,
+    "macro_f1": 0.7687214626548372,
+    "per_class": {
+      "CANDIDATE": {
+        "f1": 0.6030664395229983,
+        "precision": 0.5566037735849056,
+        "recall": 0.6579925650557621,
+        "support": 269
+      },
+      "CONFIRMED": {
+        "f1": 0.8375241779497099,
+        "precision": 0.8326923076923077,
+        "recall": 0.8424124513618677,
+        "support": 514
+      },
+      "FALSE POSITIVE": {
+        "f1": 0.8655737704918033,
+        "precision": 0.8979591836734694,
+        "recall": 0.8354430379746836,
+        "support": 790
+      }
+    },
+    "roc_auc_macro": 0.9226364637739911,
+    "roc_auc_ovr": 0.9226364637739911,
+    "weighted_f1": 0.8115165787580177
+  },
+  "train_metrics": {
+    "accuracy": 0.9094275574756981,
+    "brier": 0.04977372115001467,
+    "confusion": {
+      "labels": [
+        "CANDIDATE",
+        "CONFIRMED",
+        "FALSE POSITIVE"
+      ],
+      "matrix": [
+        [
+          967,
+          62,
+          60
+        ],
+        [
+          117,
+          2067,
+          33
+        ],
+        [
+          185,
+          130,
+          2860
+        ]
+      ]
+    },
+    "log_loss": 0.2897860461087448,
+    "macro_f1": 0.8923998192151293,
+    "per_class": {
+      "CANDIDATE": {
+        "f1": 0.820186598812553,
+        "precision": 0.7620173364854216,
+        "recall": 0.8879706152433425,
+        "support": 1089
+      },
+      "CONFIRMED": {
+        "f1": 0.9235924932975871,
+        "precision": 0.9150066401062417,
+        "recall": 0.93234100135318,
+        "support": 2217
+      },
+      "FALSE POSITIVE": {
+        "f1": 0.933420365535248,
+        "precision": 0.9685066034541144,
+        "recall": 0.9007874015748032,
+        "support": 3175
+      }
+    },
+    "roc_auc_macro": 0.9809520526605141,
+    "roc_auc_ovr": 0.9809520526605141,
+    "weighted_f1": 0.911031850690022
+  },
+  "winner": "hist_gradient_boosting"
+}

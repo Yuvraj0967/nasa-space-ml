@@ -1,0 +1,439 @@
+{
+  "algorithm": "learned:hist_gradient_boosting",
+  "baseline": {
+    "metrics": {
+      "average_precision": 0.25747423603088476,
+      "brier": 0.041851195748449956,
+      "confusion": {
+        "labels": [
+          "NOT_PHA",
+          "PHA"
+        ],
+        "matrix": [
+          [
+            4274,
+            1
+          ],
+          [
+            188,
+            53
+          ]
+        ]
+      },
+      "f1_positive": 0.3593220338983051,
+      "macro_f1": 0.6688449473600487,
+      "operating_points": [
+        {
+          "precision": 0.9814814814814815,
+          "recall": 0.21991701244813278,
+          "target_precision": 0.1,
+          "threshold": 1.0
+        },
+        {
+          "precision": 0.9814814814814815,
+          "recall": 0.21991701244813278,
+          "target_precision": 0.25,
+          "threshold": 1.0
+        },
+        {
+          "precision": 0.9814814814814815,
+          "recall": 0.21991701244813278,
+          "target_precision": 0.5,
+          "threshold": 1.0
+        },
+        {
+          "precision": 0.9814814814814815,
+          "recall": 0.21991701244813278,
+          "target_precision": 0.75,
+          "threshold": 1.0
+        }
+      ],
+      "per_class": {
+        "NOT_PHA": {
+          "f1": 0.9783678608217924,
+          "precision": 0.9578664276109368,
+          "recall": 0.9997660818713451,
+          "support": 4275
+        },
+        "PHA": {
+          "f1": 0.3593220338983051,
+          "precision": 0.9814814814814815,
+          "recall": 0.21991701244813278,
+          "support": 241
+        }
+      },
+      "precision_positive": 0.9814814814814815,
+      "prevalence": 0.05336581045172719,
+      "recall_positive": 0.21991701244813278,
+      "roc_auc": 0.6098415471597389,
+      "unknown_at_threshold": 0
+    },
+    "name": "nasa_pha_rule"
+  },
+  "cv": [
+    {
+      "candidate": "dummy_majority",
+      "cv_mean": 0.0534,
+      "cv_std": 0.0,
+      "fit_seconds": 0.02,
+      "fold_metric_means": {
+        "average_precision": 0.0534,
+        "brier": 0.0534,
+        "macro_f1": 0.4863,
+        "roc_auc": 0.5
+      },
+      "fold_scores": [
+        0.0534,
+        0.0534,
+        0.0534,
+        0.0534,
+        0.0534
+      ],
+      "kind": "rule"
+    },
+    {
+      "candidate": "hist_gradient_boosting",
+      "cv_mean": 0.7386,
+      "cv_std": 0.0249,
+      "fit_seconds": 9.92,
+      "fold_metric_means": {
+        "average_precision": 0.7386,
+        "brier": 0.042,
+        "macro_f1": 0.7969,
+        "roc_auc": 0.9788
+      },
+      "fold_scores": [
+        0.7678,
+        0.7103,
+        0.7618,
+        0.7285,
+        0.7246
+      ],
+      "kind": "learned"
+    },
+    {
+      "candidate": "logistic_regression",
+      "cv_mean": 0.5266,
+      "cv_std": 0.0307,
+      "fit_seconds": 0.89,
+      "fold_metric_means": {
+        "average_precision": 0.5266,
+        "brier": 0.0676,
+        "macro_f1": 0.7536,
+        "roc_auc": 0.9667
+      },
+      "fold_scores": [
+        0.505,
+        0.5562,
+        0.5369,
+        0.4847,
+        0.5504
+      ],
+      "kind": "learned"
+    },
+    {
+      "candidate": "nasa_pha_rule",
+      "cv_mean": 0.2642,
+      "cv_std": 0.025,
+      "fit_seconds": 0.01,
+      "fold_metric_means": {
+        "average_precision": 0.2642,
+        "brier": 0.0415,
+        "macro_f1": 0.6722,
+        "roc_auc": 0.6124
+      },
+      "fold_scores": [
+        0.2887,
+        0.2937,
+        0.2398,
+        0.2496,
+        0.2494
+      ],
+      "kind": "rule"
+    }
+  ],
+  "dataset_fingerprint": "f732fe257e31929eae5bc08409ce59168df76df429911c30a0b949bca38eedbc",
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "scikit_learn": "1.9.0"
+  },
+  "feature_hash": "b11f6f011dd5c80d",
+  "feature_names": [
+    "moid_proxy_au",
+    "log_moid",
+    "moid_lunar_distances",
+    "n_approaches",
+    "n_approaches_within_lunar",
+    "v_rel_at_closest",
+    "v_inf_at_closest",
+    "uncertainty_ratio_at_closest",
+    "absolute_magnitude_h",
+    "diameter_from_h_km",
+    "log_diameter_from_h",
+    "diameter_reported_km",
+    "diameter_inconsistency_km",
+    "implied_albedo",
+    "n_orbit_solutions",
+    "t_sigma_seconds_at_closest",
+    "observation_span_years",
+    "closest_month_sin",
+    "closest_month_cos"
+  ],
+  "feature_ranges": {
+    "absolute_magnitude_h": [
+      13.82,
+      34.06
+    ],
+    "closest_month_cos": [
+      -1.0,
+      1.0
+    ],
+    "closest_month_sin": [
+      -1.0,
+      1.0
+    ],
+    "diameter_from_h_km": [
+      0.0005475968775795751,
+      6.115908271680187
+    ],
+    "diameter_inconsistency_km": [
+      0.0015168605472236363,
+      2.8831227578162193
+    ],
+    "diameter_reported_km": [
+      0.008,
+      6.742
+    ],
+    "implied_albedo": [
+      0.01064549755693902,
+      0.6975804324112992
+    ],
+    "log_diameter_from_h": [
+      -3.2615390368963872,
+      0.7864609631036128
+    ],
+    "log_moid": [
+      -6.6427223232478765,
+      -0.6989807850846819
+    ],
+    "moid_lunar_distances": [
+      8.858181069423541e-05,
+      77.81907990015098
+    ],
+    "moid_proxy_au": [
+      2.27655253484185e-07,
+      0.199995035343388
+    ],
+    "n_approaches": [
+      1.0,
+      20.0
+    ],
+    "n_approaches_within_lunar": [
+      0.0,
+      3.0
+    ],
+    "n_orbit_solutions": [
+      1.0,
+      1.0
+    ],
+    "observation_span_years": [
+      0.0,
+      10.85330187636163
+    ],
+    "t_sigma_seconds_at_closest": [
+      60.0,
+      861180.0
+    ],
+    "uncertainty_ratio_at_closest": [
+      9.455589993224505e-06,
+      0.9999999683322472
+    ],
+    "v_inf_at_closest": [
+      0.0867978455016328,
+      41.0732615986217
+    ],
+    "v_rel_at_closest": [
+      0.150101641860297,
+      41.0738939944769
+    ]
+  },
+  "folds": {
+    "test": {
+      "classes": {
+        "NOT_PHA": 4275,
+        "PHA": 241
+      },
+      "groups": 4516,
+      "rows": 4516
+    },
+    "train": {
+      "classes": {
+        "NOT_PHA": 13894,
+        "PHA": 784
+      },
+      "groups": 14678,
+      "rows": 14678
+    },
+    "val": {
+      "classes": {
+        "NOT_PHA": 3206,
+        "PHA": 181
+      },
+      "groups": 3387,
+      "rows": 3387
+    }
+  },
+  "groups": 22581,
+  "holdout": {
+    "cv_seconds": 17.0,
+    "test": 4516,
+    "train": 14678,
+    "val": 3387
+  },
+  "labels": [
+    "NOT_PHA",
+    "PHA"
+  ],
+  "metrics": {
+    "average_precision": 0.726097964258598,
+    "brier": 0.04251861410599279,
+    "confusion": {
+      "labels": [
+        "NOT_PHA",
+        "PHA"
+      ],
+      "matrix": [
+        [
+          4030,
+          245
+        ],
+        [
+          16,
+          225
+        ]
+      ]
+    },
+    "f1_positive": 0.6329113924050633,
+    "macro_f1": 0.800772485050026,
+    "operating_points": [
+      {
+        "precision": 0.36036036036036034,
+        "recall": 0.995850622406639,
+        "target_precision": 0.1,
+        "threshold": 0.005277454285882612
+      },
+      {
+        "precision": 0.36036036036036034,
+        "recall": 0.995850622406639,
+        "target_precision": 0.25,
+        "threshold": 0.005277454285882612
+      },
+      {
+        "precision": 0.5,
+        "recall": 0.8962655601659751,
+        "target_precision": 0.5,
+        "threshold": 0.6358559841656881
+      },
+      {
+        "precision": 0.7536231884057971,
+        "recall": 0.4315352697095436,
+        "target_precision": 0.75,
+        "threshold": 0.9411686364319416
+      }
+    ],
+    "per_class": {
+      "NOT_PHA": {
+        "f1": 0.9686335776949886,
+        "precision": 0.9960454770143351,
+        "recall": 0.9426900584795321,
+        "support": 4275
+      },
+      "PHA": {
+        "f1": 0.6329113924050633,
+        "precision": 0.4787234042553192,
+        "recall": 0.9336099585062241,
+        "support": 241
+      }
+    },
+    "precision_positive": 0.4787234042553192,
+    "prevalence": 0.05336581045172719,
+    "recall_positive": 0.9336099585062241,
+    "roc_auc": 0.9778175729780884
+  },
+  "n_approach_events": 32390,
+  "n_features": 19,
+  "name": "asteroid_pha",
+  "pha_rule_unknowns": 0,
+  "rows": 22581,
+  "schema_version": 1,
+  "settings_path": "C:\\Users\\Yuvraj Pateria\\Documents\\Qoder\\2026-11-11\\adb27b28\\nasa-space-ml\\configs\\settings.yaml",
+  "task": "asteroids",
+  "train_metrics": {
+    "average_precision": 0.8781100677806305,
+    "brier": 0.035742560928796255,
+    "confusion": {
+      "labels": [
+        "NOT_PHA",
+        "PHA"
+      ],
+      "matrix": [
+        [
+          16199,
+          901
+        ],
+        [
+          12,
+          953
+        ]
+      ]
+    },
+    "f1_positive": 0.6761262859169919,
+    "macro_f1": 0.8243589611566887,
+    "operating_points": [
+      {
+        "precision": 0.3580705009276438,
+        "recall": 1.0,
+        "target_precision": 0.1,
+        "threshold": 0.004390203357089633
+      },
+      {
+        "precision": 0.3580705009276438,
+        "recall": 1.0,
+        "target_precision": 0.25,
+        "threshold": 0.004390203357089633
+      },
+      {
+        "precision": 0.5,
+        "recall": 0.9906735751295337,
+        "target_precision": 0.5,
+        "threshold": 0.4448064367983582
+      },
+      {
+        "precision": 0.7502198768689534,
+        "recall": 0.883937823834197,
+        "target_precision": 0.75,
+        "threshold": 0.8899395815008836
+      }
+    ],
+    "per_class": {
+      "NOT_PHA": {
+        "f1": 0.9725916363963856,
+        "precision": 0.9992597618900746,
+        "recall": 0.9473099415204679,
+        "support": 17100
+      },
+      "PHA": {
+        "f1": 0.6761262859169919,
+        "precision": 0.5140237324703344,
+        "recall": 0.9875647668393782,
+        "support": 965
+      }
+    },
+    "precision_positive": 0.5140237324703344,
+    "prevalence": 0.053418212012178244,
+    "recall_positive": 0.9875647668393782,
+    "roc_auc": 0.9928972214647155
+  },
+  "trained_utc": "2026-11-12T13:49:02+00:00"
+}
