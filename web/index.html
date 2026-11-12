@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSO · Space Object Screening Console</title>
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230b1017'/><circle cx='16' cy='16' r='6' fill='none' stroke='%234fd1c5' stroke-width='2'/><path d='M4 16h6M22 16h6' stroke='%234fd1c5' stroke-width='2'/></svg>">
+</head>
+<body>
+<header class="rig">
+  <div class="rig-brand">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5" fill="none" stroke="currentColor" stroke-width="1" opacity=".55" transform="rotate(-18 16 16)"/>
+      <circle cx="16" cy="16" r="2" fill="currentColor"/>
+    </svg>
+    <div>
+      <h1>SPACE OBJECT SCREENING CONSOLE</h1>
+      <p class="sub">NASA Exoplanet Archive (TAP/ADQL) · JPL SBDB Close Approach Data · two grouped-split classifiers behind one FastAPI service</p>
+    </div>
+  </div>
+  <dl class="rig-status" id="rig-status">
+    <div><dt>SERVICE</dt><dd id="stat-service">—</dd></div>
+    <div><dt>BUILD</dt><dd id="stat-version">—</dd></div>
+    <div><dt>DATASET SHA</dt><dd id="stat-fingerprint">—</dd></div>
+    <div><dt>SNAPSHOT</dt><dd id="stat-cache">—</dd></div>
+  </dl>
+</header>
+
+<main>
+  <section class="channel" id="channel-exo" data-task="exoplanets">
+    <div class="channel-head">
+      <h2><span class="chan-id">CH-1</span> KEPLER CANDIDATE DISPOSITION</h2>
+      <p class="chan-desc">Three-class classification over the Q1–Q17 DR25 KOI table. Grouped by host star (<code>kepid</code>), so a star never sits on both sides of the split. Selection metric: macro-F1.</p>
+    </div>
+    <div class="channel-body">
+      <div class="form-side">
+        <div class="tabs" role="tablist" aria-label="Input source">
+          <button class="tab is-active" role="tab" aria-selected="true" data-mode="manual">MANUAL INPUT</button>
+          <button class="tab" role="tab" aria-selected="false" data-mode="sample">ARCHIVE SAMPLE</button>
+        </div>
+        <div class="sample-bar" data-panel="sample" hidden>
+          <label class="field field-narrow">
+            <span class="field-label">ROW INDEX</span>
+            <input type="number" min="0" step="1" value="0" data-sample="index">
+          </label>
+          <label class="field field-narrow">
+            <span class="field-label">DISPOSITION</span>
+            <select data-sample="label"><option value="">any</option></select>
+          </label>
+          <button class="btn" data-action="load-sample">FETCH ROW</button>
+          <span class="sample-note" data-role="sample-note">reads a real catalogue row from the cached snapshot</span>
+        </div>
+        <form class="fields" data-panel="manual" data-form></form>
+        <div class="form-actions">
+          <button class="btn btn-primary" data-action="predict">RUN SCREENING</button>
+          <button class="btn" data-action="fill-known">FILL KNOWN VALUES</button>
+          <button class="btn btn-ghost" data-action="reset">CLEAR</button>
+        </div>
+      </div>
+      <div class="read-side">
+        <div class="verdict" data-role="verdict">
+          <div class="verdict-lamp" data-role="lamp" aria-hidden="true"></div>
+          <div class="verdict-text">
+            <p class="verdict-label">AWAITING INPUT</p>
+            <p class="verdict-detail">no screening has been run on this channel</p>
+          </div>
+        </div>
+        <div class="probs" data-role="probs"></div>
+        <div class="notice" data-role="notice" hidden></div>
+        <dl class="provenance" data-role="provenance"></dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="channel" id="channel-neo" data-task="asteroids">
+    <div class="channel-head">
+      <h2><span class="chan-id">CH-2</span> POTENTIALLY HAZARDOUS OBJECT</h2>
+      <p class="chan-desc">Binary classification of JPL PHA membership from close-approach summaries. Label is NASA's published list — not re-derived from the two rule thresholds. Selection metric: PR-AUC (average precision). Baseline: the literal MOID ≤ 0.05 au &amp; H ≤ 22.0 rule.</p>
+    </div>
+    <div class="channel-body">
+      <div class="form-side">
+        <div class="tabs" role="tablist" aria-label="Input source">
+          <button class="tab is-active" role="tab" aria-selected="true" data-mode="manual">MANUAL INPUT</button>
+          <button class="tab" role="tab" aria-selected="false" data-mode="sample">ARCHIVE SAMPLE</button>
+        </div>
+        <div class="sample-bar" data-panel="sample" hidden>
+          <label class="field field-narrow">
+            <span class="field-label">ROW INDEX</span>
+            <input type="number" min="0" step="1" value="0" data-sample="index">
+          </label>
+          <label class="field field-narrow">
+            <span class="field-label">STATUS</span>
+            <select data-sample="pha"><option value="">any object</option><option value="true">hazardous only</option><option value="false">non-hazardous only</option></select>
+          </label>
+          <button class="btn" data-action="load-sample">FETCH OBJECT</button>
+          <span class="sample-note" data-role="sample-note">aggregated across every approach in the window</span>
+        </div>
+        <form class="fields" data-panel="manual" data-form></form>
+        <div class="form-actions">
+          <button class="btn btn-primary" data-action="predict">RUN SCREENING</button>
+          <button class="btn" data-action="fill-known">FILL KNOWN VALUES</button>
+          <button class="btn btn-ghost" data-action="reset">CLEAR</button>
+        </div>
+      </div>
+      <div class="read-side">
+        <div class="verdict" data-role="verdict">
+          <div class="verdict-lamp" data-role="lamp" aria-hidden="true"></div>
+          <div class="verdict-text">
+            <p class="verdict-label">AWAITING INPUT</p>
+            <p class="verdict-detail">no screening has been run on this channel</p>
+          </div>
+        </div>
+        <div class="probs" data-role="probs"></div>
+        <div class="notice" data-role="notice" hidden></div>
+        <dl class="provenance" data-role="provenance"></dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="channel channel-docs">
+    <div class="channel-head">
+      <h2><span class="chan-id">REF</span> HOW TO READ THIS</h2>
+      <p class="chan-desc">
+        Probabilities are the model's own scores, not measurement error bars, and not a statement about whether a
+        planet exists. On CH-2 the service always shows what NASA's published rule says about the same numbers — when
+        the model and the rule disagree, the rule is the reference and that disagreement is the interesting case.
+        Extrapolated inputs are flagged rather than rejected. Full contracts at
+        <a class="inline-link" href="/docs">/docs</a>, raw JSON at
+        <a class="inline-link" href="/api/v1/meta">/api/v1/meta</a>.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Capstone project · scikit-learn · FastAPI · no CDN, no external origins, works offline once loaded</p>
+  <p id="foot-error" class="foot-error" hidden></p>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
