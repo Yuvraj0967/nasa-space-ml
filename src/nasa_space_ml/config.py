@@ -16,7 +16,10 @@ import yaml
 
 from .errors import ConfigError
 
-DEFAULT_CONFIG_PATH = Path("configs/settings.yaml")
+# Resolved from the installed package location, not from the current working directory, so
+# `nasa-space-ml train` and `uvicorn nasa_space_ml.api.app:app` read the same file whether
+# they are launched from the repo root, from /, or from inside a Docker image.
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "configs" / "settings.yaml"
 
 
 def _need(mapping: dict[str, Any], key: str, where: str) -> Any:

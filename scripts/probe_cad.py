@@ -7,10 +7,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-import httpx  # noqa: E402
+import httpx
 
-from nasa_space_ml.config import Config  # noqa: E402
-from nasa_space_ml.data.asteroids import build_params  # noqa: E402
+from nasa_space_ml.config import Config
+from nasa_space_ml.data.asteroids import build_params
 
 
 def main() -> int:
@@ -31,7 +31,7 @@ def main() -> int:
         try:
             payload = response.json()
             print("keys :", sorted(payload), "count:", payload.get("count"))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             print("json failure:", exc)
         print("-" * 60)
     return 0

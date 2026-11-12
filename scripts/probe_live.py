@@ -12,12 +12,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nasa_space_ml.config import Config  # noqa: E402
-from nasa_space_ml.data import asteroids as ast  # noqa: E402
-from nasa_space_ml.data import exoplanets as exo  # noqa: E402
-from nasa_space_ml.data.cache import Cache  # noqa: E402
-from nasa_space_ml.features import asteroids as fast  # noqa: E402
-from nasa_space_ml.features import exoplanets as fexo  # noqa: E402
+from nasa_space_ml.config import Config
+from nasa_space_ml.data import asteroids as ast
+from nasa_space_ml.data import exoplanets as exo
+from nasa_space_ml.data.cache import Cache
+from nasa_space_ml.features import asteroids as fast
+from nasa_space_ml.features import exoplanets as fexo
 
 
 def main() -> int:
@@ -30,7 +30,11 @@ def main() -> int:
     print("wrote", str(wrote), flush=True)
     frame = exo.load(config, raw)
     print("rows", len(frame), "cols", len(frame.columns), flush=True)
-    print("disposition counts", frame[config.exoplanets.label_column].value_counts().to_dict(), flush=True)
+    print(
+        "disposition counts",
+        frame[config.exoplanets.label_column].value_counts().to_dict(),
+        flush=True,
+    )
     print("unique hosts", frame[config.exoplanets.group_column].nunique(), flush=True)
     X, y, groups = fexo.build_matrices(frame, config)
     print("X", X.shape, "y", y.shape, "groups", groups.nunique(), flush=True)
@@ -45,11 +49,18 @@ def main() -> int:
     print("pha event rows", int(events["pha_flag"].sum()), flush=True)
     objects = fast.aggregate_events(events, config)
     print("objects", len(objects), "pha objects", int(objects["pha_flag"].sum()), flush=True)
-    Xa, ya, ga = fast.build_matrices(objects, config)
+    Xa, ya, _ga = fast.build_matrices(objects, config)
     print("Xa", Xa.shape, "classes", ya.value_counts().to_dict(), flush=True)
     print("nan per feature", {k: int(v) for k, v in Xa.isna().sum().items()}, flush=True)
-    print("moid range", float(Xa["moid_proxy_au"].min()), float(Xa["moid_proxy_au"].max()), flush=True)
-    print("h range", float(Xa["absolute_magnitude_h"].min()), float(Xa["absolute_magnitude_h"].max()), flush=True)
+    print(
+        "moid range", float(Xa["moid_proxy_au"].min()), float(Xa["moid_proxy_au"].max()), flush=True
+    )
+    print(
+        "h range",
+        float(Xa["absolute_magnitude_h"].min()),
+        float(Xa["absolute_magnitude_h"].max()),
+        flush=True,
+    )
 
     print("elapsed seconds", round(time.time() - started, 1), flush=True)
     return 0

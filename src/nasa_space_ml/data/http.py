@@ -13,6 +13,7 @@ with httpx.MockTransport and never touch the network.
 
 from __future__ import annotations
 
+import json
 import random
 import time
 from collections.abc import Callable
@@ -86,9 +87,7 @@ def fetch_text(
     sleeper: Callable[[float], None] = time.sleep,
 ) -> str:
     """GET a URL and return its body as text, retrying transient failures."""
-    return _attempt_fetch(
-        client, url, params, settings, sleeper, on_response=lambda r: r.text
-    )
+    return _attempt_fetch(client, url, params, settings, sleeper, on_response=lambda r: r.text)
 
 
 def fetch_json(
@@ -99,12 +98,30 @@ def fetch_json(
     settings: HttpSettings,
     sleeper: Callable[[float], None] = time.sleep,
 ) -> dict:
-    """GET a URL and return its JSON body, retrying transient failures."""
-    import json
+    """GET a URL and return its JSON body, retrying transient failures.
+
+    A JSON parse failure is *not* retried. When a NASA host answers 200 with an HTML
+    maintenance page, the status code is a lie and no amount of waiting fixes it, so we
+    fail once, loudly, with enough of the body in the message to identify the page. This
+    is the case where the transport succeeded and the contract did not; letting
+    `json.JSONDecodeError` escape would put a Python traceback in front of a caller that
+    was told it only has to handle `UpstreamNASAError`.
+    """
+
+    captured: dict[str, str] = {}
 
     def parse(response: httpx.Response) -> str:
+        captured["content_type"] = response.headers.get("content-type", "")
         return response.text
 
-    return json.loads(
-        _attempt_fetch(client, url, params, settings, sleeper, on_response=parse)
-    )
+    body = _attempt_fetch(client, url, params, settings, sleeper, on_response=parse)
+    try:
+        return json.loads(body)
+    except json.JSONDecodeError as exc:
+        snippet = body[:240].replace("\n", " ").strip()
+        raise UpstreamNASAError(
+            f"{url} answered 200 but the body is not JSON ({exc.msg} at line {exc.lineno} "
+            f"column {exc.colno}); it starts {snippet!r}. Usually this is an HTML outage "
+            "page or a proxy error document, not a change to the API.",
+            details={"content_type": captured.get("content_type", ""), "body_start": snippet[:120]},
+        ) from exc

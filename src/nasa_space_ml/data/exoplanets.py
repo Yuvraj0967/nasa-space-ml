@@ -62,9 +62,7 @@ LEAKAGE_FORBIDDEN: frozenset[str] = frozenset(
 )
 
 NUMERIC_COLUMNS: tuple[str, ...] = tuple(
-    column
-    for column in BASE_COLUMNS
-    if column not in {"kepoi_name", "kepid", "koi_disposition"}
+    column for column in BASE_COLUMNS if column not in {"kepoi_name", "kepid", "koi_disposition"}
 )
 
 

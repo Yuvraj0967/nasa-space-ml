@@ -216,14 +216,16 @@ def download(
             events = _page(http, config, pha_only=False, sleeper=sleeper)
             if events.empty:
                 raise DataError("CAD returned zero close approaches for this window")
-            wrote[settings.raw_file] = cache.write_text(settings.raw_file, events.to_csv(index=False))
+            wrote[settings.raw_file] = cache.write_text(
+                settings.raw_file, events.to_csv(index=False)
+            )
 
         if not (cache.exists(settings.pha_file) and cache.verify(settings.pha_file)):
             pha_events = _page(http, config, pha_only=True, sleeper=sleeper)
-            designations = sorted(set(pha_events["des"].astype(str))) if not pha_events.empty else []
-            wrote[settings.pha_file] = cache.write_text(
-                settings.pha_file, "\n".join(designations)
+            designations = (
+                sorted(set(pha_events["des"].astype(str))) if not pha_events.empty else []
             )
+            wrote[settings.pha_file] = cache.write_text(settings.pha_file, "\n".join(designations))
     finally:
         if owns:
             http.close()
