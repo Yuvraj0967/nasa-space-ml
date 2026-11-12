@@ -18,7 +18,7 @@ decision constrains everything downstream.
 **What this project claims.** Two classifiers trained on public NASA data, with grouped
 splits, pre-declared selection metrics, rule baselines that include NASA's own published
 definition, honest holdout numbers (macro-F1 0.7687; average precision 0.7261), a service that
-serves them with typed contracts and RFC 9457 errors, a test suite of 375 cases that never
+serves them with typed contracts and RFC 9457 errors, a test suite of 376 cases that never
 touches the network, and CI that boots the thing. **What it does not claim.** That either model
 is state of the art; that a PHA prediction is a hazard assessment; that the asteroid MOID
 proxy is a MOID; that 0.77 macro-F1 makes a validation scientist redundant. Those limits are
@@ -85,7 +85,7 @@ Ten stages, each of which can fail in a way the previous stage cannot see:
 7. **Serve** — a FastAPI app with typed contracts, provenance in every response, and errors as
    RFC 9457 documents. (`api/`)
 8. **Show** — a browser console that calls the API and never recomputes a prediction. (`web/`)
-9. **Verify** — 375 tests, mocked transports, warnings-as-errors, and three opt-in live probes
+9. **Verify** — 376 tests, mocked transports, warnings-as-errors, and three opt-in live probes
    against NASA. (`tests/`)
 10. **Publish** — CI that lints, tests on two Python versions, boots the service, scores a real
     request over HTTP, and builds the container. (`.github/workflows/ci.yml`)
@@ -111,7 +111,7 @@ web/                      index.html, styles.css, app.js — no framework, no CD
 models/                   *.joblib + *.json sidecars      [committed]
 reports/                  metrics.json + PNG figures       [committed]
 data/raw/                 NASA bytes + checksum.json       [gitignored]
-tests/                    375 offline cases, one file per module
+tests/                    376 offline cases, one file per module
 docs/                     this guide, ARCHITECTURE, DATA_DICTIONARY, errors, model cards
 scripts/                  live probes used during development, excluded from the wheel
 ```
@@ -1918,7 +1918,7 @@ JavaScript: exactly one implementation of the model's behaviour exists, and it i
 
 ### The test suite, and the conventions that make it honest
 
-375 tests, ~26 s, `filterwarnings = ["error"]` active. Four structural choices do the work:
+376 tests, ~26 s, `filterwarnings = ["error"]` active. Five structural choices do the work:
 
 **1. `httpx.MockTransport`, everywhere.** `tests/conftest.py` and the data-layer tests construct
 clients with a fake transport returning canned responses, which makes the interesting failures
@@ -1952,6 +1952,19 @@ wrote the tests. Two lessons from one config line: a warning you have not decide
 latent failure, and a green run on your own machine is not evidence about a clean install. The one
 filter that ignores anything is pinned by message *and* category in `pyproject.toml`, with a
 comment saying why, so every other warning — including anything this project raises — still fails.
+
+**5. Tests do not know where the repository is.** Two of this repository's first three CI runs
+failed on nothing more substantive than a path. `tests/test_api.py` located `web/` with
+`Path(__file__).parents[1]` and `tests/test_registry.py` located `models/` with
+`registry.__file__`'s `parents[3]`, and both are correct answers only when the package is
+installed *editable*, which is how a checkout is developed and not how a runner installs it. On
+`pip install .` the first assertion failed outright and the second `pytest.skip`ped itself —
+the worse of the two, because a green check that quietly stopped checking looks like coverage.
+The fix was not to special-case CI. It was to make the tests ask the same question the
+application asks: load the config, read `config.paths.model_dir`. Where a test is really about
+*ordering*, like "the package-relative web candidate beats the working-directory one", it now
+builds two candidate directories in `tmp_path` and asserts the precedence, so the claim is about
+the code rather than about where this particular checkout happens to sit.
 
 Three tests are marked `@network` and deselected by default (`addopts = "-m 'not network'"`):
 `tests/test_live_probe.py` fetches both sources into temporary caches and asserts the endpoints
@@ -2077,8 +2090,9 @@ under concurrent load; calibration for the exoplanet model.
 
 ## Where to go next
 
-For the data sources themselves: the NASA Exoplanet Archive's Kepler services documentation
-(`https://exoplanetarchive.ipac.caltech.edu/docs/kepler_services.html`) and its TAP/ADQL pages;
+For the data sources themselves: the NASA Exoplanet Archive's TAP/ADQL walkthrough
+(`https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html`), which is where chapter 2's
+`select ... from` dialect is actually specified;
 the JPL SBDB Close Approaches API reference (`https://ssd-api.jpl.nasa.gov/doc/cad.html`); and
 CNEOS (`https://cneos.jpl.nasa.gov/`) for how hazard determination is actually done, which is
 the standard this project's limitations section holds itself against.
@@ -2093,9 +2107,9 @@ importance page, which discusses both the negative-value and correlated-feature 
 13 before you meet them in someone else's paper.
 
 For the physics: Harris' chapter on the absolute magnitude to diameter relation is what
-`D = 1329/√p · 10^(-H/5)` comes from, and the Exoplanet Archive's own column definitions
-(`https://exoplanetarchive.ipac.caltech.edu/docs/kepcoldef.html`) explain the KOI columns
-chapter 6 builds features from.
+`D = 1329/√p · 10^(-H/5)` comes from, and the Archive's own page for the table this project queries
+(`https://exoplanetarchive.ipac.caltech.edu/table/Q1_Q17_DR25_KOI/cut.html`) lists and explains
+the 153 KOI columns that chapter 6 builds 21 features from.
 
 For the engineering: RFC 9457 for problem details, FastAPI's documentation on dependency
 injection and app factories, and — closest to the spirit of chapter 4 — any writing on content

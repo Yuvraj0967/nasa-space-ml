@@ -26,7 +26,10 @@ The `type` value is RFC 9457's **document identifier**. It is not an XML namespa
 nothing is required to fetch it — but it is written as a real, clickable URL to this page
 on `main`, because a reviewer staring at a 503 should be one click from the explanation
 rather than one from a 404. The anchor is the `code` field with `Error` removed and
-lower-cased, so `InvalidFeaturesError` → `#invalid-features`.
+lower-cased, so `InvalidFeaturesError` → `#invalid-features`. That sentence is not a
+promise anyone has to keep by hand: `tests/test_api.py` walks `TYPE_URIS` and asserts
+both that each URI is the clickable `/blob/main/` form and that the anchor it names
+exists in this file.
 
 `request_id` appears in the `X-Request-Id` response header as well as the body. Send your
 own (≤ 64 characters, any token you like) and the service echoes it back, which is what

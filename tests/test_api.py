@@ -28,6 +28,7 @@ from fastapi.testclient import TestClient
 from nasa_space_ml import __version__
 from nasa_space_ml.api.app import create_app, resolve_config_path, web_dir
 from nasa_space_ml.api.deps import AppState
+from nasa_space_ml.api.problem import TYPE_URIS
 from nasa_space_ml.config import Config, resolve_default_config_path
 from nasa_space_ml.data.cache import Cache
 from nasa_space_ml.errors import ConfigError
@@ -614,6 +615,21 @@ class TestDegradedService:
     def test_the_503_tells_the_operator_what_to_run(self, degraded_client: TestClient) -> None:
         body = degraded_client.post(f"{API}/asteroids/predict", json={}).json()
         assert "nasa-space-ml train" in body["detail"]
+
+    def test_every_problem_type_uri_is_clickable_and_lands_somewhere(self) -> None:
+        """`type` now promises a real URL, so both halves of the promise are checked.
+
+        This is not a link checker - it would be testing GitHub's HTML rather than this
+        repository's contract. What it does test is the half that rots quietly: renaming an
+        error class, rewriting a heading, or dropping the `/blob/main/` prefix breaks a
+        reviewer's click and nothing else would notice.
+        """
+        doc = Path(__file__).resolve().parents[1] / "docs" / "errors.md"
+        text = doc.read_text(encoding="utf-8")
+        for code, uri in TYPE_URIS.items():
+            base, _, anchor = uri.partition("#")
+            assert base.endswith("/blob/main/docs/errors.md"), f"{code}: {uri}"
+            assert f'<a name="{anchor}"></a>' in text, f"{code}: errors.md has no #{anchor}"
 
     def test_meta_still_describes_the_contract(self, degraded_client: TestClient) -> None:
         body = degraded_client.get(f"{API}/meta").json()

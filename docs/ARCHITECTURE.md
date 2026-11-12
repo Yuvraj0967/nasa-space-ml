@@ -211,9 +211,16 @@ touching nothing.
 Tests that need real cached data skip with the exact command to run
 (`pytest.skip("...run nasa-space-ml fetch")`) instead of failing red on a fresh clone,
 because a test that cannot pass without 6 MB of gitignored bytes is not a regression test —
-it is a fetch check that got lost. `warnings.simplefilter("error")` turns DeprecationWarnings
-into failures, which is how the pandas 3.0 migration debt stays visible; the single ignore in
-`pyproject.toml` names the library that emits it.
+it is a fetch check that got lost. `filterwarnings = ["error"]` in `pyproject.toml` turns
+warnings into failures, which is how the pandas 3.0 migration debt stays visible; the two
+ignores in that list each name the library that emits them and why the project does not own
+the fix.
+
+Nothing in `tests/` derives a repository path from `__file__`. Two of the first three CI runs
+failed precisely there: the application resolved its config one way and the tests resolved it
+another, and an editable install on a laptop hid the difference. Tests now obtain paths from
+the loaded `Config`, or fabricate the candidates they are asserting the order of, so the suite
+says the same thing about a `pip install .` wheel as it says about the checkout it lives in.
 
 ## What is deliberately absent
 

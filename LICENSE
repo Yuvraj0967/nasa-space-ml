@@ -25,8 +25,8 @@ SOFTWARE.
 The data this project works with is not covered by this license. The NASA Exoplanet
 Archive and NASA/JPL's Small-Body Database are US government works; see each source's
 own usage terms at
-https://exoplanetarchive.ipac.caltech.edu/docs/notice.html and
-https://www.jpl.nasa.gov/terms/. Nothing here implies endorsement of this project by
+https://exoplanetarchive.ipac.caltech.edu/docs/data.html and
+https://ssd-api.jpl.nasa.gov/doc/. Nothing here implies endorsement of this project by
 NASA, JPL, or Caltech. The trained models are statistical artifacts built from that
 data and are provided under the same MIT terms as the code, for study, with no
 warranty of any kind - including no warranty that they are correct about any

@@ -72,7 +72,7 @@ src/nasa_space_ml/
   api/                     FastAPI app factory, Pydantic contracts, problem+json errors, routers
   cli.py                   nasa-space-ml fetch | train | status | serve | all
 web/                       the console: index.html + styles.css + app.js, no framework, no CDN
-tests/                     375 tests, none of which touch the network (+3 opt-in probes)
+tests/                     376 tests, none of which touch the network (+3 opt-in probes)
 docs/                      the guide below
 models/ reports/           trained artifacts and their figures — committed on purpose
 data/                      gitignored; regenerate with `nasa-space-ml fetch`
@@ -213,13 +213,16 @@ see [docs/errors.md](docs/errors.md).
 ## Tests and CI
 
 ```bash
-.venv/bin/pytest                                   # 375 tests, ~26 s, no network
+.venv/bin/pytest                                   # 376 tests, ~26 s, no network
 .venv/bin/pytest -m network                        # 3 opt-in probes against the real endpoints
 .venv/bin/ruff check src tests scripts && .venv/bin/ruff format --check src tests scripts
 ```
 
 Warnings are errors. Tests that need the data cache skip with the exact command to run
-rather than failing red on a machine that has not fetched anything. GitHub Actions runs
+rather than failing red on a machine that has not fetched anything. Nothing in `tests/` works
+out where the repository is by looking at `__file__`, so the suite says the same thing about an
+editable checkout and about the `pip install .` wheel CI builds — a difference that took two CI
+runs to surface, because an editable install hides it. GitHub Actions runs
 three jobs on every push: `lint`, `test` across Python 3.11 and 3.12 — including an
 assertion that the committed artifacts' feature lists still match the code that builds
 them — and `smoke`, which boots the service, scores a real Kepler candidate over HTTP,
@@ -263,10 +266,10 @@ Code, models, and documentation: MIT — see [LICENSE](LICENSE).
 
 Data: NASA's. The Exoplanet Archive and the JPL Small-Body Database are US government
 works with their own citation and usage terms
-([archive notice](https://exoplanetarchive.ipac.caltech.edu/docs/notice.html),
-[JPL terms](https://www.jpl.nasa.gov/terms/)). This project is not endorsed by or affiliated
-with NASA, JPL, or Caltech, and no NASA bytes are redistributed here — the cache is
-gitignored and every fetch is a fresh call to the public endpoint.
+([how the Archive describes its data](https://exoplanetarchive.ipac.caltech.edu/docs/data.html),
+[JPL's SBDB API documentation](https://ssd-api.jpl.nasa.gov/doc/)). This project is not
+endorsed by or affiliated with NASA, JPL, or Caltech, and no NASA bytes are redistributed
+here — the cache is gitignored and every fetch is a fresh call to the public endpoint.
 
 If you cite the numbers, cite the dataset fingerprint with them:
 `f732fe257e31929eae5bc08409ce59168df76df429911c30a0b949bca38eedbc`, snapshot
