@@ -72,7 +72,7 @@ src/nasa_space_ml/
   api/                     FastAPI app factory, Pydantic contracts, problem+json errors, routers
   cli.py                   nasa-space-ml fetch | train | status | serve | all
 web/                       the console: index.html + styles.css + app.js, no framework, no CDN
-tests/                     371 tests, none of which touch the network
+tests/                     375 tests, none of which touch the network (+3 opt-in probes)
 docs/                      the guide below
 models/ reports/           trained artifacts and their figures — committed on purpose
 data/                      gitignored; regenerate with `nasa-space-ml fetch`
@@ -213,7 +213,7 @@ see [docs/errors.md](docs/errors.md).
 ## Tests and CI
 
 ```bash
-.venv/bin/pytest                                   # 371 tests, ~25 s, no network
+.venv/bin/pytest                                   # 375 tests, ~26 s, no network
 .venv/bin/pytest -m network                        # 3 opt-in probes against the real endpoints
 .venv/bin/ruff check src tests scripts && .venv/bin/ruff format --check src tests scripts
 ```

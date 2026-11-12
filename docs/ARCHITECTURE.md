@@ -82,11 +82,15 @@ to the current working directory. A typo'd or incomplete settings file raises
 an application that quietly substituted a default threshold would keep returning 200s, and
 those 200s would be wrong.
 
-Resolution order for the config path, implemented in `api/app.py:resolve_config_path`:
-explicit argument → `NSM_CONFIG` → search from the package's location. That ordering exists
-because a container installs the package into site-packages, where the repository-relative
-candidate no longer points at anything, and because a test that passes a path must not be
-overridden by an inherited environment variable.
+Resolution order for the config path, implemented in `config.config_candidates` and reached from
+both the CLI and `api/app.py:resolve_config_path`: explicit argument → `NSM_CONFIG` → the nearest
+`configs/settings.yaml` at or above the working directory → the package-relative default. The
+working-directory step is not decoration. The first CI run of this repository installed with
+`pip install .` instead of the editable install everything was developed against, which moved the
+package into site-packages where the package-relative candidate points two directories above
+anything real, and `nasa-space-ml --offline status` failed in CI while passing locally. The
+environment variable still comes first, because a container's path is the one thing its image
+authoritatively knows, and an explicitly set path that gets ignored is a silent misconfiguration.
 
 `--offline` is a process-wide switch consumed by the data layer. With it set, any code path
 that would open a socket raises instead, which is what allows CI to run the whole suite with

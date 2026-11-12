@@ -18,7 +18,7 @@ decision constrains everything downstream.
 **What this project claims.** Two classifiers trained on public NASA data, with grouped
 splits, pre-declared selection metrics, rule baselines that include NASA's own published
 definition, honest holdout numbers (macro-F1 0.7687; average precision 0.7261), a service that
-serves them with typed contracts and RFC 9457 errors, a test suite of 371 cases that never
+serves them with typed contracts and RFC 9457 errors, a test suite of 375 cases that never
 touches the network, and CI that boots the thing. **What it does not claim.** That either model
 is state of the art; that a PHA prediction is a hazard assessment; that the asteroid MOID
 proxy is a MOID; that 0.77 macro-F1 makes a validation scientist redundant. Those limits are
@@ -85,7 +85,7 @@ Ten stages, each of which can fail in a way the previous stage cannot see:
 7. **Serve** — a FastAPI app with typed contracts, provenance in every response, and errors as
    RFC 9457 documents. (`api/`)
 8. **Show** — a browser console that calls the API and never recomputes a prediction. (`web/`)
-9. **Verify** — 371 tests, mocked transports, warnings-as-errors, and three opt-in live probes
+9. **Verify** — 375 tests, mocked transports, warnings-as-errors, and three opt-in live probes
    against NASA. (`tests/`)
 10. **Publish** — CI that lints, tests on two Python versions, boots the service, scores a real
     request over HTTP, and builds the container. (`.github/workflows/ci.yml`)
@@ -111,7 +111,7 @@ web/                      index.html, styles.css, app.js — no framework, no CD
 models/                   *.joblib + *.json sidecars      [committed]
 reports/                  metrics.json + PNG figures       [committed]
 data/raw/                 NASA bytes + checksum.json       [gitignored]
-tests/                    371 cases, one file per module
+tests/                    375 offline cases, one file per module
 docs/                     this guide, ARCHITECTURE, DATA_DICTIONARY, errors, model cards
 scripts/                  live probes used during development, excluded from the wheel
 ```
@@ -1916,9 +1916,9 @@ model, algorithm, sklearn version, training timestamp, dataset fingerprint, and 
 underneath every answer. It calls `/sample` then `/predict`, and never computes a score in
 JavaScript: exactly one implementation of the model's behaviour exists, and it is Python's.
 
-### The test suite, and the two conventions that make it honest
+### The test suite, and the conventions that make it honest
 
-371 tests, ~26 s, `warnings.simplefilter("error")` active. Three structural choices do the work:
+375 tests, ~26 s, `filterwarnings = ["error"]` active. Four structural choices do the work:
 
 **1. `httpx.MockTransport`, everywhere.** `tests/conftest.py` and the data-layer tests construct
 clients with a fake transport returning canned responses, which makes the interesting failures
@@ -1940,6 +1940,18 @@ machine that has them.
 explaining it is a recorded rough edge. A test suite that only asserts what the author liked is
 documentation; one that asserts what the code does, including the parts that are unpleasant, is
 a specification.
+
+**4. `filterwarnings = ["error"]`, and the two bugs it found.** Treating warnings as failures
+looks aggressive and paid for itself twice. Locally it escalated an unclosed `ssl.SSLSocket` into
+a red test, which is the only way a leaked client in `data/exoplanets.py` gets noticed before it
+holds a descriptor open through a long training run. On CI it escalated a
+`StarletteDeprecationWarning` raised at *import time* by `starlette.testclient`, because Starlette
+prefers a package called `httpx2` and mine had been installed ambiently into the interpreter's
+user site-packages — so the fallback branch that warns had never once executed on the machine that
+wrote the tests. Two lessons from one config line: a warning you have not decided about is a
+latent failure, and a green run on your own machine is not evidence about a clean install. The one
+filter that ignores anything is pinned by message *and* category in `pyproject.toml`, with a
+comment saying why, so every other warning — including anything this project raises — still fails.
 
 Three tests are marked `@network` and deselected by default (`addopts = "-m 'not network'"`):
 `tests/test_live_probe.py` fetches both sources into temporary caches and asserts the endpoints
@@ -1970,12 +1982,16 @@ only things in the suite that speak to whether the README's numbers still descri
   repository is *runnable* and not merely importable — a capstone that does not boot is worth
   nothing to a reviewer with ten minutes.
 
-The container is what makes the path-resolution code in `api/app.py` necessary: a wheel installed
-into site-packages has no repository above it, so `resolve_config_path` honours `NSM_CONFIG` and
-`web_candidates()` honours `NSM_WEB_DIR` before falling back to the package-relative and
-working-directory guesses. `web_dir()` returns `None` when no page exists, and the app then
-serves the API with `/` returning 404 — because the alternative is a crash at import time on an
-install that is otherwise perfectly functional.
+Container and wheel installs are what make the path-resolution code necessary: a package installed
+into site-packages has no repository above it. `config.config_candidates()` therefore orders
+`$NSM_CONFIG`, then the nearest `configs/settings.yaml` at or above the working directory, then the
+package-relative default, and `api/app.py:resolve_config_path` keeps only the explicit argument and
+the variable. The middle step is not a refinement — the first CI run installed with `pip install .`
+rather than `pip install -e .`, `nasa-space-ml status` looked for its config two directories above
+site-packages, and it failed there while passing at home. `web_candidates()` honours `NSM_WEB_DIR`
+before falling back to the package-relative and working-directory guesses. `web_dir()` returns
+`None` when no page exists, and the app then serves the API with `/` returning 404 — because the
+alternative is a crash at import time on an install that is otherwise perfectly functional.
 
 ### What is not proven
 
