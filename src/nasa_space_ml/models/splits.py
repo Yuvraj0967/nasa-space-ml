@@ -77,7 +77,9 @@ def _round_robin_assign(
     quota so far. Deterministic given the input order, and it stays stable when the catalogue
     grows by a handful of rows - which is what makes published numbers re-runnable.
     """
-    quotas = {name: weight * len(ordered_groups) for name, weight in zip(fold_names, weights, strict=True)}
+    quotas = {
+        name: weight * len(ordered_groups) for name, weight in zip(fold_names, weights, strict=True)
+    }
     taken: Counter[str] = Counter()
     assignment: dict[str, str] = {}
     for group in ordered_groups:
@@ -115,9 +117,11 @@ def grouped_holdout(
 
     plurality = _plurality_per_group(pd.Series(labels).astype(str), pd.Series(groups).astype(str))
     rng = np.random.default_rng(config.seed)
-    weights = [1.0 - config.split.test_size - config.split.val_size,
-               config.split.val_size,
-               config.split.test_size]
+    weights = [
+        1.0 - config.split.test_size - config.split.val_size,
+        config.split.val_size,
+        config.split.test_size,
+    ]
 
     by_class: dict[str, list[str]] = defaultdict(list)
     for group in sorted(unique_groups):

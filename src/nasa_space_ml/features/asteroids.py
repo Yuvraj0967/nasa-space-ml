@@ -69,8 +69,13 @@ FEATURE_COLUMNS: tuple[str, ...] = (
 # this as an explicit set (rather than duplicating the list) means FEATURE_COLUMNS can only
 # ever have one definition.
 DERIVED_COLUMNS: frozenset[str] = frozenset(
-    {"log_moid", "moid_lunar_distances", "log_diameter_from_h",
-     "closest_month_sin", "closest_month_cos"}
+    {
+        "log_moid",
+        "moid_lunar_distances",
+        "log_diameter_from_h",
+        "closest_month_sin",
+        "closest_month_cos",
+    }
 )
 
 BASE_INPUT_COLUMNS: tuple[str, ...] = tuple(
@@ -89,12 +94,23 @@ def _log10_positive(values: pd.Series) -> pd.Series:
 
 
 def diameter_from_absolute_magnitude(h: Any, albedo: float) -> float | None:
-    """NASA's standard H -> diameter relation, D_km = 1329/sqrt(p) * 10^(-H/5)."""
-    if h is None or (isinstance(h, float) and math.isnan(h)):
-        return None
+    """NASA's standard H -> diameter relation, D_km = 1329/sqrt(p) * 10^(-H/5).
+
+    Unparseable magnitudes return None rather than raising, mirroring
+    `albedo_from_diameter`: CAD and hand-built API requests both hand us strings, empty
+    strings and NaNs for the same field, and a `ValueError` from a physics helper would
+    take down a whole training run over one bad cell. A non-positive albedo is different -
+    that is a configuration mistake, not a data mistake, so it is loud.
+    """
     if albedo <= 0:
         raise DataError("geometric albedo must be positive", details={"albedo": albedo})
-    return DIAMETER_CONSTANT_KM / math.sqrt(albedo) * 10.0 ** (-float(h) / 5.0)
+    try:
+        h_value = float(h)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(h_value):
+        return None
+    return DIAMETER_CONSTANT_KM / math.sqrt(albedo) * 10.0 ** (-h_value / 5.0)
 
 
 def albedo_from_diameter(h: Any, diameter_km: Any) -> float | None:
@@ -117,8 +133,7 @@ def albedo_from_diameter(h: Any, diameter_km: Any) -> float | None:
 _CAD_MONTHS: dict[str, int] = {
     name: number
     for number, name in enumerate(
-        ["jan", "feb", "mar", "apr", "may", "jun",
-         "jul", "aug", "sep", "oct", "nov", "dec"],
+        ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"],
         start=1,
     )
 }
@@ -213,9 +228,7 @@ def _aggregate_one(des: str, group: pd.DataFrame, albedo: float) -> dict[str, An
     reported = _median(diameters)
     record["diameter_reported_km"] = reported
 
-    from_h = (
-        diameter_from_absolute_magnitude(h_median, albedo) if h_median is not None else None
-    )
+    from_h = diameter_from_absolute_magnitude(h_median, albedo) if h_median is not None else None
     record["diameter_from_h_km"] = from_h
     record["diameter_inconsistency_km"] = (
         abs(reported - from_h) if reported is not None and from_h is not None else None
@@ -254,16 +267,11 @@ def aggregate_events(events: pd.DataFrame, config: Config) -> pd.DataFrame:
     required = {"des", "dist_min", "pha_flag"}
     missing = sorted(required - set(events.columns))
     if missing:
-        raise DataError(
-            "CAD event table is missing required columns", details={"missing": missing}
-        )
+        raise DataError("CAD event table is missing required columns", details={"missing": missing})
     albedo = config.asteroids.default_geometric_albedo
     frame = events.copy()
     frame["des"] = frame["des"].astype(str)
-    records = [
-        _aggregate_one(des, group, albedo)
-        for des, group in frame.groupby("des", sort=True)
-    ]
+    records = [_aggregate_one(des, group, albedo) for des, group in frame.groupby("des", sort=True)]
     return pd.DataFrame.from_records(records)
 
 
@@ -299,7 +307,9 @@ def derive(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def build_matrices(frame: pd.DataFrame, config: Config) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
+def build_matrices(
+    frame: pd.DataFrame, config: Config
+) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
     """Object table -> (X, y, groups). Groups are designations, so one object never splits.
 
     Only the *base* columns are required from the caller: `derive` produces the derived
@@ -310,8 +320,8 @@ def build_matrices(frame: pd.DataFrame, config: Config) -> tuple[pd.DataFrame, p
     missing = sorted(column for column in required if column not in frame.columns)
     if missing:
         raise DataError(
-            "asteroid feature table is missing columns; re-run `nasa-space-ml fetch` and "
-            "check the CAD field list",
+            f"asteroid feature table is missing {missing}; re-run `nasa-space-ml fetch` "
+            "and check the CAD field list",
             details={"missing": missing},
         )
     derived = derive(frame)

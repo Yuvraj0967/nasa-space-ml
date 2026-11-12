@@ -145,7 +145,9 @@ def derive(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def build_matrices(frame: pd.DataFrame, config: Config) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
+def build_matrices(
+    frame: pd.DataFrame, config: Config
+) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
     """Return (X, y, groups) ready for splitting.
 
     Raises rather than silently dropping a column: a renamed NASA column is a break in
@@ -167,7 +169,9 @@ def build_matrices(frame: pd.DataFrame, config: Config) -> tuple[pd.DataFrame, p
     groups = derived[group].astype(str)
 
     if not all(str(dtype).startswith("float") for dtype in features.dtypes):
-        bad = [name for name, dtype in features.dtypes.items() if not str(dtype).startswith("float")]
+        bad = [
+            name for name, dtype in features.dtypes.items() if not str(dtype).startswith("float")
+        ]
         raise DataError(f"non-numeric feature columns: {bad}", details={"columns": bad})
 
     return (
